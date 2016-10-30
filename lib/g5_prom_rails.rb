@@ -16,4 +16,10 @@ module G5PromRails
     return if @@refresh_hooks.nil?
     @@refresh_hooks.each { |b| b.call }
   end
+
+  def self.count_models(app, *models)
+    add_refresh_hook do
+      Metrics.update_model_count_gauge(app, *models)
+    end
+  end
 end

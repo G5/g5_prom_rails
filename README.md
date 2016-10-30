@@ -38,17 +38,17 @@ G5PromRails.initialize_per_application = -> (registry) {
 }
 
 G5PromRails.add_refresh_hook do
-  METRICS.posts.set({}, Post.count)
+  METRICS.published_posts.set({}, Post.where(published: true).count)
 end
 ```
 
 **`lib/metrics.rb`**
 ```ruby
 class Metrics
-  attr_reader :posts, :post_shares
+  attr_reader :published_posts, :post_shares
 
   def initialize_per_application(registry)
-    @posts = registry.gauge(:my_app_posts, "blog posts")
+    @published_posts = registry.gauge(:my_app_posts, "published blog posts")
   end
 
   def initialize_per_application(registry)
@@ -96,6 +96,25 @@ Well, it does now. If you have Sidekiq and the process is a worker, it will star
 ```ruby
 G5PromRails.sidekiq_scrape_server_port = 3001
 ```
+
+## Helpers
+
+There are some common instrumentation tasks that this gem can help you with.
+
+#### Row Counts
+
+When you'd like to instrument the count of certain ActiveRecord models, in an initializer you can:
+
+```ruby
+G5PromRails.count_models(:my_app, Post, Comment)
+```
+
+Will result in a gauge metric named `model_rows` with a `model` label set to the tableized name of your model and an `app` label set to the `my_app`. In PromQL this will look like:
+```promql
+model_rows{model="posts", app="my_app"}
+```
+
+This metric is left un-namespaced because it gives you the ability to compare these values across applications, while still allowing them to be limited to a single app via PromQL. The values will automatically be refreshed when the application-level metrics endpoint is hit.
 
 ## License
 
