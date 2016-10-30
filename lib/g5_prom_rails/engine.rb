@@ -32,16 +32,35 @@ module G5PromRails
         G5PromRails::RefreshingExporter
       )
 
-      app.middleware.use(
-        Prometheus::Client::Rack::Exporter,
-        path: G5PromRails::PER_PROCESS_PATH,
-        registry: G5PromRails::Metrics.per_process
-      )
-      app.middleware.use(
-        Prometheus::Client::Rack::Exporter,
+      per_application_opts = {
         path: G5PromRails::PER_APPLICATION_PATH,
         registry: G5PromRails::Metrics.per_application
-      )
+      }
+      per_process_opts = {
+        path: G5PromRails::PER_PROCESS_PATH,
+        registry: G5PromRails::Metrics.per_process
+      }
+
+      # has sidekiq and is a worker
+      if defined?(Sidekiq) && Sidekiq.server?.present?
+        app = Rack::Builder.new do
+          use Rack::ShowExceptions
+          use Rack::Lint
+          use Prometheus::Client::Rack::Exporter, per_process_opts
+          run -> { [ '404', {}, ["Not Found"] ] }
+        end
+
+        Thread.new do
+          Rails.logger.info("started g5_prom_rails metrics endpoint...")
+          Rack::Server.start(
+            app: app,
+            Port: (G5PromRails.sidekiq_scrape_server_port || 3000),
+          )
+        end
+      else
+        app.middleware.use(Prometheus::Client::Rack::Exporter, per_process_opts)
+        app.middleware.use(Prometheus::Client::Rack::Exporter, per_application_opts)
+      end
     end
   end
 end

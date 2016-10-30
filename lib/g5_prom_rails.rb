@@ -5,6 +5,7 @@ module G5PromRails
   PER_APPLICATION_PATH = "/probe"
 
   cattr_accessor :initialize_per_application, :initialize_per_process
+  cattr_accessor :sidekiq_scrape_server_port
 
   def self.add_refresh_hook(&block)
     @@refresh_hooks ||= []
