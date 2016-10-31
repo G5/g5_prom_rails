@@ -33,7 +33,7 @@ G5PromRails.initialize_per_application = -> (registry) {
   METRICS.initialize_per_application(registry)
 }
 
-G5PromRails.initialize_per_application = -> (registry) {
+G5PromRails.initialize_per_process = -> (registry) {
   METRICS.initialize_per_process(registry)
 }
 
@@ -92,7 +92,7 @@ There are a couple of general Prometheus tips things to keep in mind.
 As you will soon learn, G5PromRails can provide you with some automatic metrics. Most of them are scoped to your application's name. It will attempt to infer the application's name from the Rails Application class's (`config/application.rb`) dasherized parent module name. If that doesn't work for you, it can be manually defined with:
 
 ```ruby
-G5PromRails.app_name = "my_app_name"
+G5PromRails.app_name = "my-app-name"
 ```
 
 ## Sidekiq
@@ -126,12 +126,12 @@ There are some common instrumentation tasks that this gem can help you with.
 When you'd like to instrument the count of certain ActiveRecord models, in an initializer you can:
 
 ```ruby
-G5PromRails.count_models(:my_app, Post, Comment)
+G5PromRails.count_models(Post, Comment)
 ```
 
 Will result in a gauge metric named `model_rows` with a `model` label set to the tableized name of your model and an `app` label set to the `my_app`. In PromQL this will look like:
 ```promql
-model_rows{model="posts", app="my_app"}
+model_rows{model="posts", app="my-app"}
 ```
 
 This metric is left un-namespaced because it gives you the ability to compare these values across applications, while still allowing them to be limited to a single app via PromQL. The values will automatically be refreshed when the application-level metrics endpoint is hit.
