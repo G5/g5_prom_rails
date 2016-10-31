@@ -1,7 +1,9 @@
-require_relative 'sidekiq_metrics'
+require_relative 'sidekiq_application_metrics'
 
 class G5PromRails::MetricsContainer
-  include G5PromRails::SidekiqMetrics if defined?(Sidekiq)
+  if defined?(Sidekiq)
+    include G5PromRails::SidekiqApplicationMetrics
+  end
 
   MODEL_COUNT_NAME = :model_rows
 
@@ -13,7 +15,7 @@ class G5PromRails::MetricsContainer
     @per_process = Prometheus::Client::Registry.new
     @per_application = Prometheus::Client::Registry.new
     @model_count_gauge = @per_application.gauge(MODEL_COUNT_NAME, "model row counts")
-    try(:initialize_sidekiq)
+    try(:initialize_sidekiq_application)
   end
 
   def update_model_count_gauge(*models)

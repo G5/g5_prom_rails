@@ -6,6 +6,16 @@ abort("The Rails environment is running in production mode!") if Rails.env.produ
 require 'spec_helper'
 require 'rspec/rails'
 # Add additional requires below this line. Rails is not loaded until this point!
+require 'sidekiq/testing'
+Sidekiq::Testing.inline!
+
+Sidekiq::Testing.server_middleware do |chain|
+  chain.add(
+    G5PromRails::SidekiqTimingMiddleware,
+    app: "dummy",
+    metric: G5PromRails::Metrics.per_process.get(:sidekiq_job_seconds)
+  )
+end
 
 # Requires supporting ruby files with custom matchers and macros, etc, in
 # spec/support/ and its subdirectories. Files matching `spec/**/*_spec.rb` are

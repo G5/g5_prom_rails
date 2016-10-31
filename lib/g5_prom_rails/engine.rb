@@ -2,6 +2,7 @@ require 'prometheus/client/rack/exporter'
 require_relative 'metrics'
 require_relative 'refreshing_exporter'
 require_relative 'settable_counter'
+require_relative 'sidekiq_timing_middleware'
 
 module G5PromRails
   class Engine < ::Rails::Engine
@@ -65,10 +66,23 @@ module G5PromRails
       end
     end
 
-    initializer "g5_prom_rails.maybe_add_sidekiq_stats" do |app|
+    initializer "g5_prom_rails.maybe_configure_sidekiq" do |app|
       if defined?(Sidekiq)
         G5PromRails.add_refresh_hook do
           Metrics.update_sidekiq_statistics
+        end
+
+        timing_metric = G5PromRails::SidekiqTimingMiddleware.build_metric(
+          G5PromRails::Metrics.per_process
+        )
+        Sidekiq.configure_server do |config|
+          config.server_middleware do |chain|
+            chain.add(
+              G5PromRails::SidekiqTimingMiddleware,
+              app: G5PromRails::Metrics.app,
+              metric: timing_metric
+            )
+          end
         end
       end
     end

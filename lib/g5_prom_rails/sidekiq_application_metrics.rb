@@ -1,9 +1,9 @@
 require 'sidekiq/api'
 
-module G5PromRails::SidekiqMetrics
+module G5PromRails::SidekiqApplicationMetrics
   extend ActiveSupport::Concern
 
-  def initialize_sidekiq
+  def initialize_sidekiq_application
     @processed_counter = G5PromRails::SettableCounter.new(
       :sidekiq_processed,
       "jobs processed"

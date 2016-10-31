@@ -6,7 +6,7 @@ def expect_metric(reg, name, labels, value)
   expect(m.get(labels)).to eq(value)
 end
 
-RSpec.describe G5PromRails::SidekiqMetrics do
+RSpec.describe G5PromRails::SidekiqApplicationMetrics do
   let(:metrics) { G5PromRails::MetricsContainer.new("test-app") }
   let(:reg) { metrics.per_application }
 

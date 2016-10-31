@@ -105,12 +105,15 @@ Well, it does now. If you have Sidekiq and the process is a worker, it will star
 G5PromRails.sidekiq_scrape_server_port = 3001
 ```
 
-If your application includes Sidekiq, G5PromRails will detect it and include several metrics using Sidekiq's built-in statistics classes. Metrics include:
+If your application includes Sidekiq, G5PromRails will detect it and include several metrics using Sidekiq's built-in statistics classes. It also adds a benchmarking middleware to the Sidekiq server middleware chain.
+
+Metrics include:
 
   * *`sidekiq_processed`* Counter for jobs processed.
   * *`sidekiq_failed`* Counter for jobs failed.
   * *`sidekiq_retry`* Gauge for current retries length.
   * *`sidekiq_queued`* Gauge for current queue length. The label `queue` is applied to allow per-queue analysis.
+  * *`sidekiq_job_seconds`*,*`sidekiq_job_seconds_sum`*,*`sidekiq_job_seconds_count`* Histogram for job execution time. The label `job_name` is applied, and will be identical to the Ruby class name of the job (e.g. `MyImportantWorker`). To understand how to use this data, look at [the official documentation](https://prometheus.io/docs/practices/histograms/). See particularly the section about aggregation.
 
 Each metric also has the `app` label applied with the name of your application.
 
@@ -132,6 +135,10 @@ model_rows{model="posts", app="my_app"}
 ```
 
 This metric is left un-namespaced because it gives you the ability to compare these values across applications, while still allowing them to be limited to a single app via PromQL. The values will automatically be refreshed when the application-level metrics endpoint is hit.
+
+## Development
+
+To run this engine's tests, you need redis running. Sorry. You need to do some finagling to get Sidekiq using fakeredis, and I didn't feel like spending the time on it. I'm using Sidekiq::Stats, which isn't part of any of sidekiq's normal testing setup.
 
 ## License
 
