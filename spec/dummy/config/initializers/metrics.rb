@@ -1,7 +1,7 @@
 test_app_gauge = nil
 test_process_gauge = nil
 
-G5PromRails.count_models("dummy", Post)
+G5PromRails.count_models(Post)
 
 G5PromRails.initialize_per_application = -> (reg) {
   test_app_gauge = reg.gauge(:test_app_gauge, "test app gauge description")

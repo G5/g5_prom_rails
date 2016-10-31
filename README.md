@@ -87,6 +87,14 @@ There are a couple of general Prometheus tips things to keep in mind.
   * Read [the official Prometheus guidelines on metric naming](https://prometheus.io/docs/practices/naming/). It's short and extremely helpful.
   * Did you see the big warning at the end of the naming guidelines? Labels in Prometheus are extremely powerful; I encourage you to use them, but don't abuse them. A new time series database is created for every combination of label values. Feel free to use a label that could have dozens of possible values, for instance in your blog post counter to differentiate drafts from published articles. Do *not* use `author_id` as a label to count posts by author. *Especially* do not use multiple labels that could have many possible values, because the effect on the total number of time series databases is multiplicative.
 
+## App Name
+
+As you will soon learn, G5PromRails can provide you with some automatic metrics. Most of them are scoped to your application's name. It will attempt to infer the application's name from the Rails Application class's (`config/application.rb`) dasherized parent module name. If that doesn't work for you, it can be manually defined with:
+
+```ruby
+G5PromRails.app_name = "my_app_name"
+```
+
 ## Sidekiq
 
 Prometheus's strategy is to scrape metrics. If you take a moment to think about it, we have a problem: how do you scrape in-memory metrics from a Sidekiq worker? That process doesn't start a web server.
@@ -96,6 +104,15 @@ Well, it does now. If you have Sidekiq and the process is a worker, it will star
 ```ruby
 G5PromRails.sidekiq_scrape_server_port = 3001
 ```
+
+If your application includes Sidekiq, G5PromRails will detect it and include several metrics using Sidekiq's built-in statistics classes. Metrics include:
+
+  * *`sidekiq_processed`* Counter for jobs processed.
+  * *`sidekiq_failed`* Counter for jobs failed.
+  * *`sidekiq_retry`* Gauge for current retries length.
+  * *`sidekiq_queued`* Gauge for current queue length. The label `queue` is applied to allow per-queue analysis.
+
+Each metric also has the `app` label applied with the name of your application.
 
 ## Helpers
 

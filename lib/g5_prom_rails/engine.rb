@@ -1,6 +1,7 @@
 require 'prometheus/client/rack/exporter'
 require_relative 'metrics'
 require_relative 'refreshing_exporter'
+require_relative 'settable_counter'
 
 module G5PromRails
   class Engine < ::Rails::Engine
@@ -11,7 +12,8 @@ module G5PromRails
     end
 
     initializer "g5_prom_rails.configure_global" do |app|
-      G5PromRails::Metrics = MetricsContainer.new
+      app_name = G5PromRails.app_name || app.class.parent_name.underscore.dasherize
+      G5PromRails::Metrics = MetricsContainer.new(app_name)
 
       if G5PromRails.initialize_per_application.present?
         G5PromRails::Metrics.per_application.instance_eval(
@@ -60,6 +62,14 @@ module G5PromRails
       else
         app.middleware.use(Prometheus::Client::Rack::Exporter, per_process_opts)
         app.middleware.use(Prometheus::Client::Rack::Exporter, per_application_opts)
+      end
+    end
+
+    initializer "g5_prom_rails.maybe_add_sidekiq_stats" do |app|
+      if defined?(Sidekiq)
+        G5PromRails.add_refresh_hook do
+          Metrics.update_sidekiq_statistics
+        end
       end
     end
   end

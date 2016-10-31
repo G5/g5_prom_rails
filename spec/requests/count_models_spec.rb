@@ -1,3 +1,5 @@
+require 'rails_helper'
+
 RSpec.describe "G5PromRails.count_models", type: :request do
   before { Post.create!(title: "Foo") }
 
