@@ -7,7 +7,7 @@ def expect_metric(reg, name, labels, value)
 end
 
 RSpec.describe G5PromRails::SidekiqApplicationMetrics do
-  let(:metrics) { G5PromRails::MetricsContainer.new("test-app") }
+  let(:metrics) { G5PromRails::MetricsContainer.new }
   let(:reg) { metrics.per_application }
 
   before do
@@ -25,19 +25,19 @@ RSpec.describe G5PromRails::SidekiqApplicationMetrics do
 
   it "works" do
     metrics.update_sidekiq_statistics
-    expect_metric(reg, :sidekiq_processed, { app: "test-app" }, 1)
-    expect_metric(reg, :sidekiq_failed, { app: "test-app" }, 2)
-    expect_metric(reg, :sidekiq_retry, { app: "test-app" }, 3)
+    expect_metric(reg, :sidekiq_processed, {}, 1)
+    expect_metric(reg, :sidekiq_failed, {}, 2)
+    expect_metric(reg, :sidekiq_retry, {}, 3)
     expect_metric(
       reg,
       :sidekiq_queued,
-      { app: "test-app", queue: "default" },
+      { queue: "default" },
       11
     )
     expect_metric(
       reg,
       :sidekiq_queued,
-      { app: "test-app", queue: "high" },
+      { queue: "high" },
       12
     )
   end

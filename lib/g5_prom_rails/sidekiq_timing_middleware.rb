@@ -24,13 +24,12 @@ class G5PromRails::SidekiqTimingMiddleware
   end
 
   def initialize(options = nil)
-    @app = options[:app]
     @metric = options[:metric]
   end
 
   def call(worker, msg, queue)
     @metric.observe(
-      { app: @app, job_class: worker.class.name },
+      { job_class: worker.class.name },
       Benchmark.realtime { yield }
     )
   end

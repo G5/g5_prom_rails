@@ -2,7 +2,6 @@ module G5PromRails
   PER_PROCESS_PATH = "/metrics"
   PER_APPLICATION_PATH = "/probe"
 
-  cattr_accessor :app_name
   cattr_accessor :initialize_per_application, :initialize_per_process
   cattr_accessor :sidekiq_scrape_server_port
 

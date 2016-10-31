@@ -27,12 +27,12 @@ module G5PromRails::SidekiqApplicationMetrics
 
   def update_sidekiq_statistics
     stats = Sidekiq::Stats.new
-    @processed_counter.set(app_hash, stats.processed)
-    @failed_counter.set(app_hash, stats.failed)
-    @retry_gauge.set(app_hash, stats.retry_size)
+    @processed_counter.set({}, stats.processed)
+    @failed_counter.set({}, stats.failed)
+    @retry_gauge.set({}, stats.retry_size)
 
     Sidekiq::Stats::Queues.new.lengths.each do |queue, length|
-      @queues_gauge.set(app_hash(queue: queue), length)
+      @queues_gauge.set({ queue: queue }, length)
     end
   end
 end

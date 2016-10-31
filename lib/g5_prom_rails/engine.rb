@@ -13,8 +13,7 @@ module G5PromRails
     end
 
     initializer "g5_prom_rails.configure_global" do |app|
-      app_name = G5PromRails.app_name || app.class.parent_name.underscore.dasherize
-      G5PromRails::Metrics = MetricsContainer.new(app_name)
+      G5PromRails::Metrics = MetricsContainer.new
 
       if G5PromRails.initialize_per_application.present?
         G5PromRails::Metrics.per_application.instance_eval(
@@ -79,7 +78,6 @@ module G5PromRails
           config.server_middleware do |chain|
             chain.add(
               G5PromRails::SidekiqTimingMiddleware,
-              app: G5PromRails::Metrics.app,
               metric: timing_metric
             )
           end

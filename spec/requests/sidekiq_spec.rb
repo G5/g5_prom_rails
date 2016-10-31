@@ -10,7 +10,7 @@ RSpec.describe "Sidekiq Statistics", type: :request do
     expect(response).to have_http_status(200)
     expect(response.body).to include("# TYPE sidekiq_processed counter")
     expect(response.body).to include("# HELP sidekiq_processed jobs processed")
-    expect(response.body).to include(%[sidekiq_processed{app="dummy"}])
+    expect(response.body).to include(%[sidekiq_processed])
   end
 
 
@@ -21,7 +21,7 @@ RSpec.describe "Sidekiq Statistics", type: :request do
     expect(response.body).to include("# TYPE sidekiq_job_seconds histogram")
     expect(response.body).to include("# HELP sidekiq_job_seconds job running time in seconds")
     expect(response.body).to include(
-      %[sidekiq_job_seconds_count{app="dummy",job_class="TestWorker"} 1]
+      %[sidekiq_job_seconds_count{job_class="TestWorker"} 1]
     )
   end
 end

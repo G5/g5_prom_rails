@@ -21,6 +21,8 @@ The engine brings in the `prometheus-client` ruby gem. It is well-documented, an
 
 This gem is designed to work when Prometheus scrapes both individual instances of Rails (horizontally scaled processes) and the application as a whole. Application-level metrics are those that are shared between every Rails process, like database model counts or background job queue sizes. Per-process metrics are instrumented events that hit individual processes, like a particular controller action being called. Prometheus deals with aggregating events that happen in multiple disconnected processes, like load balanced Rails web servers.
 
+It's also important that Prometheus is set up to relabel your metrics based on the application being scraped from. I'm assuming if you can scrape every instance of a load-balanced web application, you're using service discovery in some form and this kind of relabeling is possible.
+
 ## Configuration
 
 There are a few configuration points for the engine, which you should specify in an initializer. Here's an example of a simple recommended setup:
@@ -87,14 +89,6 @@ There are a couple of general Prometheus tips things to keep in mind.
   * Read [the official Prometheus guidelines on metric naming](https://prometheus.io/docs/practices/naming/). It's short and extremely helpful.
   * Did you see the big warning at the end of the naming guidelines? Labels in Prometheus are extremely powerful; I encourage you to use them, but don't abuse them. A new time series database is created for every combination of label values. Feel free to use a label that could have dozens of possible values, for instance in your blog post counter to differentiate drafts from published articles. Do *not* use `author_id` as a label to count posts by author. *Especially* do not use multiple labels that could have many possible values, because the effect on the total number of time series databases is multiplicative.
 
-## App Name
-
-As you will soon learn, G5PromRails can provide you with some automatic metrics. Most of them are scoped to your application's name. It will attempt to infer the application's name from the Rails Application class's (`config/application.rb`) dasherized parent module name. If that doesn't work for you, it can be manually defined with:
-
-```ruby
-G5PromRails.app_name = "my-app-name"
-```
-
 ## Sidekiq
 
 Prometheus's strategy is to scrape metrics. If you take a moment to think about it, we have a problem: how do you scrape in-memory metrics from a Sidekiq worker? That process doesn't start a web server.
@@ -115,8 +109,6 @@ Metrics include:
   * *`sidekiq_queued`* Gauge for current queue length. The label `queue` is applied to allow per-queue analysis.
   * *`sidekiq_job_seconds`*,*`sidekiq_job_seconds_sum`*,*`sidekiq_job_seconds_count`* Histogram for job execution time. The label `job_name` is applied, and will be identical to the Ruby class name of the job (e.g. `MyImportantWorker`). To understand how to use this data, look at [the official documentation](https://prometheus.io/docs/practices/histograms/). See particularly the section about aggregation.
 
-Each metric also has the `app` label applied with the name of your application.
-
 ## Helpers
 
 There are some common instrumentation tasks that this gem can help you with.
@@ -129,9 +121,9 @@ When you'd like to instrument the count of certain ActiveRecord models, in an in
 G5PromRails.count_models(Post, Comment)
 ```
 
-Will result in a gauge metric named `model_rows` with a `model` label set to the tableized name of your model and an `app` label set to the `my_app`. In PromQL this will look like:
+Will result in a gauge metric named `model_rows` with a `model` label set to the tableized name of your model. In PromQL this will look like:
 ```promql
-model_rows{model="posts", app="my-app"}
+model_rows{model="posts"}
 ```
 
 This metric is left un-namespaced because it gives you the ability to compare these values across applications, while still allowing them to be limited to a single app via PromQL. The values will automatically be refreshed when the application-level metrics endpoint is hit.
