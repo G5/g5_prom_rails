@@ -1,6 +1,6 @@
 # G5 Prom Rails
 
-This gem provides a rails engine that provides very basic help in integrating Prometheus into your Rails app. It brings in Prometheus Exporter middleware, initializes a metrics registry, and can add metrics for common use-cases and Rails gems.
+A Rails engine that provides very basic help in integrating Prometheus into your Rails app. It brings in Prometheus Exporter middleware, initializes a metrics registry, and can add metrics for common use-cases and Rails gems.
 
 ## Installation
 
@@ -17,7 +17,7 @@ $ bundle
 
 ## Usage
 
-The engine brings in the `prometheus-client` ruby gem. It is well-documented, and `g5_prom_rails` doesn't insulate you from how that gem works. You should [read its documentation](https://github.com/prometheus/client_ruby) to understand what metric types are available to you and how to update them. Registries and metrics endpoints are configured for you.
+The engine brings in the `prometheus-client` ruby gem. It is well-documented, and G5PromRails doesn't insulate you from how that gem works. You should [read its documentation](https://github.com/prometheus/client_ruby) to understand what metric types are available to you and how to update them. Registries and metrics endpoints are configured for you.
 
 This gem is designed to work when Prometheus scrapes both individual instances of Rails (horizontally scaled processes) and the application as a whole. Application-level metrics are those that are shared between every Rails process, like database model counts or background job queue sizes. Per-process metrics are instrumented events that hit individual processes, like a particular controller action being called. Prometheus deals with aggregating events that happen in multiple disconnected processes, like load balanced Rails web servers.
 
