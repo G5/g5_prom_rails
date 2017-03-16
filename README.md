@@ -53,7 +53,7 @@ class Metrics
     @published_posts = registry.gauge(:my_app_posts, "published blog posts")
   end
 
-  def initialize_per_application(registry)
+  def initialize_per_process(registry)
     @post_shares = registry.counter(:my_app_post_shares, "blog post shares")
   end
 end
