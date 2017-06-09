@@ -1,4 +1,4 @@
-require 'prometheus/client/rack/exporter'
+require 'prometheus/middleware/exporter'
 require_relative 'metrics'
 require_relative 'refreshing_exporter'
 require_relative 'settable_counter'
@@ -29,7 +29,7 @@ module G5PromRails
     end
 
     initializer "g5_prom_rails.add_exporter" do |app|
-      Prometheus::Client::Rack::Exporter.send(
+      Prometheus::Middleware::Exporter.send(
         :prepend,
         G5PromRails::RefreshingExporter
       )
@@ -48,7 +48,7 @@ module G5PromRails
         app = Rack::Builder.new do
           use Rack::ShowExceptions
           use Rack::Lint
-          use Prometheus::Client::Rack::Exporter, per_process_opts
+          use Prometheus::Middleware::Exporter, per_process_opts
           run -> { [ '404', {}, ["Not Found"] ] }
         end
 
@@ -60,8 +60,8 @@ module G5PromRails
           )
         end
       else
-        app.middleware.use(Prometheus::Client::Rack::Exporter, per_process_opts)
-        app.middleware.use(Prometheus::Client::Rack::Exporter, per_application_opts)
+        app.middleware.use(Prometheus::Middleware::Exporter, per_process_opts)
+        app.middleware.use(Prometheus::Middleware::Exporter, per_application_opts)
       end
     end
 
