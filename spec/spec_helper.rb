@@ -97,3 +97,9 @@ RSpec.configure do |config|
   Kernel.srand config.seed
 =end
 end
+
+# just to ensure this is defined so the
+# `sidekiq_application_metrics` code is loaded. We're
+# completely mocking out Sidekiq.
+module Sidekiq
+end

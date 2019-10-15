@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    g5_prom_rails (0.3.2)
+    g5_prom_rails (0.3.3)
       prometheus-client (< 0.10.0)
       rails (>= 4.0.0)
 
