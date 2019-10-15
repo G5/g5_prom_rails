@@ -1,4 +1,4 @@
-require_relative 'sidekiq_application_metrics'
+require_relative 'sidekiq_application_metrics' if defined?(Sidekiq)
 
 class G5PromRails::MetricsContainer
   if defined?(Sidekiq)
