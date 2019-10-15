@@ -17,7 +17,11 @@ Gem::Specification.new do |s|
   s.files = Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.md"]
 
   s.add_dependency "rails", ">= 4.0.0"
-  s.add_dependency "prometheus-client", "~> 0.7.0"
+  # 0.10 introduces breaking changes that will require changes in this gem, but
+  # also changes in any application that consumes this and has custom metrics
+  #
+  # https://github.com/prometheus/client_ruby/blob/master/UPGRADING.md
+  s.add_dependency "prometheus-client", "< 0.10.0"
 
   s.add_development_dependency "sqlite3"
   s.add_development_dependency "rspec-rails"
