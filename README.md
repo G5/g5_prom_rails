@@ -1,3 +1,9 @@
+### This gem is no longer maintained!
+
+I recommend trying [discourse/prometheus_exporter](https://github.com/discourse/prometheus_exporter) instead. It's not a drop-in replacement, but is actively maintained. This gem suffers from a bug where per-process metrics will not be exported properly in certain situations.
+
+---
+
 # G5 Prom Rails
 
 A Rails engine that provides very basic help in integrating Prometheus into your Rails app. It brings in Prometheus Exporter middleware, initializes a metrics registry, and can add metrics for common use-cases and Rails gems.
